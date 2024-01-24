@@ -22,7 +22,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case "हिंदी":
         Get.updateLocale(Locale('hi', 'IN'));
         break;
-
+      case "తెలుగు":
+        Get.updateLocale(Locale('te', 'IN'));
+        break;
       // case "తెలుగు":
       //   MyApp.langCode = "kn";
       //   MyApp.langLoc = "IN";
