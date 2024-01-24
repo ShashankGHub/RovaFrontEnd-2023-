@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64665119753",
+    "project_id": "rova-23",
+    "storage_bucket": "rova-23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64665119753:android:0d433f23f2e1bd43919cd8",
+        "android_client_info": {
+          "package_name": "com.example.rova_23"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0U34SOEdCzzIe1a65EoImWBO6mNS-2bQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
