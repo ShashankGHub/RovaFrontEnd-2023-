@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:rova_23/main.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -9,6 +11,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = false;
   bool accessLocationEnabled = false;
   String selectedLanguage = 'English';
+  changeAppLanguage(String Language) {
+    switch (Language) {
+      case "English":
+        Get.updateLocale(Locale('en', 'US'));
+        break;
+      case "ಕನ್ನಡ":
+        Get.updateLocale(Locale('kn', 'IN'));
+        break;
+      case "हिंदी":
+        Get.updateLocale(Locale('hi', 'IN'));
+        break;
+
+      // case "తెలుగు":
+      //   MyApp.langCode = "kn";
+      //   MyApp.langLoc = "IN";
+      //   break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedLanguage = newValue!;
+                    changeAppLanguage(selectedLanguage);
                   });
                 },
                 items: <String>['English', 'ಕನ್ನಡ', 'हिंदी', 'తెలుగు']
