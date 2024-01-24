@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:rova_23/screens/Home_page_rova.dart';
 import 'package:rova_23/screens/signin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
+  static const String KEYOTP = "otp";
+
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 4),
@@ -23,14 +28,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
+        _navigateToNextScreen();
       }
     });
 
     _animationController.forward();
+
+    // Proceed to determine the navigation path
+    whereToGo();
   }
 
   @override
@@ -54,5 +59,27 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       ),
     );
+  }
+
+  void whereToGo() async {
+    var sharedPref = await SharedPreferences.getInstance();
+    var isLoggedIn = sharedPref.getString("token");
+
+    if (isLoggedIn != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
+  }
+
+  void _navigateToNextScreen() {
+    // The logic to decide where to go next
+    whereToGo();
   }
 }
