@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:rova_23/LocaleString.dart';
+import 'package:rova_23/screens/Home_page_rova.dart';
+import 'package:rova_23/screens/access_location.dart';
 import 'package:rova_23/screens/select_crops_screen.dart';
 import 'package:rova_23/screens/splash_screen.dart';
-import 'package:get/get.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 void main() async {
   HttpOverrides.global = new MyHttpOverrides();
@@ -22,21 +24,24 @@ class MyApp extends StatelessWidget {
       statusBarIconBrightness: Brightness.dark,
     ));
 
-    return GetMaterialApp(
+    return MaterialApp(
+      //supportedLocales: ,
       debugShowCheckedModeBanner: false,
-      translations: LocaleString(),
-      locale: Locale('en', 'US'),
       title: 'Rova-23',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(), //HomeScreen(),
+        '/': (context) => //HomeScreen(),
+            SplashScreen(),
         '/queryScreen': (context) => const SelectCropsScreen(
               data: '',
             ),
+        // '/accessLocationScreen': (context) => AccessLocationScreen(
+        //       data: '',
+        //     ),
       },
     );
   }
