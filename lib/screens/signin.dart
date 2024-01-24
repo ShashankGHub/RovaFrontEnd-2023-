@@ -4,6 +4,9 @@ import 'package:rova_23/models/LoginModel.dart';
 import 'package:rova_23/screens/OTPScreen.dart';
 import 'package:rova_23/screens/signup.dart';
 import 'package:rova_23/utlis/services/rest_api_services.dart';
+//import 'package:http/http.dart' as http;
+
+//import '../main.dart';
 
 TextEditingController phoneNumberController = TextEditingController();
 LoginController _loginController = LoginController();
@@ -63,66 +66,37 @@ class LoginPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   if (validatePhoneNumber(phoneNumberController.text) == null) {
-                    ApiBaseHelper.phoneNumber =
-                        _loginmodel.phoneNumber = phoneNumberController.text;
-
+                    ApiBaseHelper.phoneNumber = _loginmodel.phoneNumber = phoneNumberController.text;
+                    
                     ApiBaseHelper.isLogin = true;
-                    // Show loader while signing in
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          content: Row(
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(width: 10),
-                              Text("Signing in..."),
+                    var response = await _loginByNumber(_loginmodel);
+                    bool success = response["success"];
+                    if (success) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => OtpScreen()));
+                    } else {
+                      var responseMessage = (response["errorMessage"]) == null
+                          ? response["resultMessage"]
+                          : response["errorMessage"] +
+                              "\n" +
+                              response["resultMessage"];
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Error"),
+                            content: Text(responseMessage),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ],
-                          ),
-                        );
-                      },
-                      barrierDismissible: false,
-                    );
-
-                    try {
-                      var response = await _loginByNumber(_loginmodel);
-                      Navigator.pop(context); // Close the loader
-
-                      bool success = response["success"];
-                      if (success) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OtpScreen()),
-                        );
-                      } else {
-                        var responseMessage = (response["errorMessage"]) == null
-                            ? response["resultMessage"]
-                            : response["errorMessage"] +
-                                "\n" +
-                                response["resultMessage"];
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text("Error"),
-                              content: Text(responseMessage),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text("OK"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    } catch (error) {
-                      Navigator.pop(
-                          context); // Close the loader in case of an error
-                      // Handle the error
-                      print("Error: $error");
+                          );
+                        },
+                      );
                     }
                   }
                 },

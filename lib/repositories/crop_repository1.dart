@@ -1,4 +1,5 @@
 import 'package:rova_23/models/crop_info_model12.dart';
+import 'package:rova_23/utlis/services/rest_api_services1.dart';
 
 class CropRepository1 {
   ApiModelNameHelper _apiModelNameHelper = ApiModelNameHelper();
@@ -15,8 +16,4 @@ class CropRepository1 {
       return err;
     }
   }
-}
-
-class ApiModelNameHelper {
-  getModelName(String modelName) {}
 }

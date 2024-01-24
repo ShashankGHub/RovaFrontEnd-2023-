@@ -1,21 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rova_23/controllers/ShopsController.dart';
-import 'package:rova_23/models/ShopsModel.dart';
 
 class StoreScreen extends StatelessWidget {
-  ShopsController _shopsController = ShopsController();
-  ShopsModel _shopsModel = ShopsModel();
-
-  StoreScreen({Key? key}) : super(key: key) {
-    _shopsModel.city = "Tumkur";
-    _getShopDetails(_shopsModel);
-  }
-
-  Future<dynamic> _getShopDetails(ShopsModel shopsModel) async {
-    var result = await _shopsController.getShopDetails(shopsModel);
-    return result;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

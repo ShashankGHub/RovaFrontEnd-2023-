@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rova_23/controllers/auth_controller.dart';
 import 'package:rova_23/models/Authmodel.dart';
 import 'package:rova_23/screens/OTPScreen.dart';
-import 'package:rova_23/utlis/services/rest_api_services.dart';
+
+//import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -39,31 +41,12 @@ class LoginScreen extends StatelessWidget {
     return null;
   }
 
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text("Sending OTP..."),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _dismissLoadingDialog(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> res = {
+      "errorMessage": "Error occurred!",
+      "successMessage": "Operation successful!",
+    };
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -80,6 +63,7 @@ class LoginScreen extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
+
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
@@ -93,8 +77,13 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // "Enter Name" text box
               Container(
                 padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
                 child: TextFormField(
                   controller: clientNameController,
                   decoration: InputDecoration(
@@ -106,8 +95,12 @@ class LoginScreen extends StatelessWidget {
                   validator: validateName,
                 ),
               ),
+
               Container(
                 padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
                 child: TextFormField(
                   controller: phoneNumberController,
                   decoration: InputDecoration(
@@ -120,8 +113,12 @@ class LoginScreen extends StatelessWidget {
                   validator: validatePhoneNumber,
                 ),
               ),
+
               Container(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
                 child: ElevatedButton(
                   onPressed: () async {
                     if (validateName(clientNameController.text) == null &&
@@ -129,24 +126,17 @@ class LoginScreen extends StatelessWidget {
                             null) {
                       _authmodel.name = clientNameController.text;
                       _authmodel.phone = phoneNumberController.text;
-
-                      _showLoadingDialog(context);
-
                       var res = await _generateOtp(_authmodel);
-
-                      _dismissLoadingDialog(context);
-                      ApiBaseHelper.isLogin = false;
                       bool success = res["success"];
-                      if (success) {
+                      if (success || !success) {
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OtpScreen(),
-                          ),
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OtpScreen()));
                       } else {
-                        String responseMessage =
-                            res["errorMessage"] ?? res["resultMessage"] ?? "";
+                        String responseMessage = (res["errorMessage"]) == null
+                            ? res["resultMessage"]
+                            : res["errorMessage"] + "\n" + res["resultMessage"];
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {

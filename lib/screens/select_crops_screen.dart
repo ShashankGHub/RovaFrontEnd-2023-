@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:rova_23/controllers/crop_info_controller.dart';
 import 'package:rova_23/controllers/crop_info_controller1.dart';
 import 'package:rova_23/models/CropInfoModel.dart';
-
+import 'package:rova_23/models/crop_info_model12.dart';
 import 'package:rova_23/screens/result_screen.dart';
 
 class SelectCropModel {
@@ -32,7 +31,6 @@ class _SelectCropsScreenState extends State<SelectCropsScreen> {
   @override
   void initState() {
     super.initState();
-    print("this is file ${widget.data}");
   }
 
   @override
@@ -71,15 +69,14 @@ class _SelectCropsScreenState extends State<SelectCropsScreen> {
     ));
 
     return Scaffold(
+      appBar: null,
       resizeToAvoidBottomInset: false,
       body: ValueListenableBuilder<bool>(
         valueListenable: _controller.isLoadingState,
         builder: (BuildContext context, bool value, child) {
           return _controller.isLoadingState.value
               ? Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.green,
-                  ),
+                  child: CircularProgressIndicator(),
                 )
               : SingleChildScrollView(
                   child: Container(
@@ -288,31 +285,30 @@ class _SelectCropsScreenState extends State<SelectCropsScreen> {
                                   var res = await _controller
                                       .fetchCropInfo(widget.data);
 
-                                  print("res: $res");
-
                                   // Fetch crop details
-                                  // try {
-                                  //   await _controller1
-                                  //       .fetchCropdetails(widget.data);
-                                  // } catch (error) {
-                                  //   // Handle error fetching crop details
-                                  //   print(
-                                  //       "Error fetching crop details: $error");
-                                  // }
-                                  if (res is CropInfoModel) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ResultScreen(
-                                          data: widget.data,
-                                          cropInfoModel:
-                                              _controller.cropInfoModel,
-                                          // cropInfoModel12:
-                                          //     _controller1.cropInfoModel12,
-                                        ),
-                                      ),
-                                    );
+                                  try {
+                                    await _controller1.fetchCropdetails(
+                                        _controller1
+                                                .cropInfoModel12.modelName ??
+                                            "");
+                                  } catch (error) {
+                                    // Handle error fetching crop details
+                                    print(
+                                        "Error fetching crop details: $error");
                                   }
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ResultScreen(
+                                        data: widget.data,
+                                        cropInfoModel:
+                                            _controller.cropInfoModel,
+                                        cropInfoModel12:
+                                            _controller1.cropInfoModel12,
+                                      ),
+                                    ),
+                                  );
                                 },
                                 child: const Text(
                                   'Next',

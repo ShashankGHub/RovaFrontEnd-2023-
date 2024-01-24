@@ -3,8 +3,6 @@ import 'package:location/location.dart';
 import 'package:rova_23/controllers/verifyOtp_controller.dart';
 import 'package:rova_23/models/VerifyOtpModel.dart';
 import 'package:rova_23/screens/Home_page_rova.dart';
-import 'package:rova_23/screens/splash_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utlis/services/rest_api_services.dart';
 
@@ -12,20 +10,16 @@ void main() {
   runApp(OtpScreen());
 }
 
+TextEditingController optTextController1 = TextEditingController();
+TextEditingController optTextController2 = TextEditingController();
+TextEditingController optTextController3 = TextEditingController();
+TextEditingController optTextController4 = TextEditingController();
+
+VerifyOtpController _verifyOtpController = VerifyOtpController();
+
+VerifyOtpModel verifyOtpModel = VerifyOtpModel();
+
 class OtpScreen extends StatelessWidget {
-  final TextEditingController optTextController1 = TextEditingController();
-  final TextEditingController optTextController2 = TextEditingController();
-  final TextEditingController optTextController3 = TextEditingController();
-  final TextEditingController optTextController4 = TextEditingController();
-
-  final FocusNode focusNode1 = FocusNode();
-  final FocusNode focusNode2 = FocusNode();
-  final FocusNode focusNode3 = FocusNode();
-  final FocusNode focusNode4 = FocusNode();
-
-  VerifyOtpController _verifyOtpController = VerifyOtpController();
-  VerifyOtpModel verifyOtpModel = VerifyOtpModel();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -47,13 +41,13 @@ class OtpScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildOtpBox(optTextController1, focusNode1, context),
+                  buildOtpBox(optTextController1),
                   SizedBox(width: 10.0),
-                  buildOtpBox(optTextController2, focusNode2, context),
+                  buildOtpBox(optTextController2),
                   SizedBox(width: 10.0),
-                  buildOtpBox(optTextController3, focusNode3, context),
+                  buildOtpBox(optTextController3),
                   SizedBox(width: 10.0),
-                  buildOtpBox(optTextController4, focusNode4, context),
+                  buildOtpBox(optTextController4),
                 ],
               ),
               SizedBox(height: 20.0),
@@ -66,62 +60,36 @@ class OtpScreen extends StatelessWidget {
                   verifyOtpModel.enteredOtp = int.parse(otpString);
                   verifyOtpModel.phoneNumber = ApiBaseHelper.phoneNumber;
 
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        content: Row(
-                          children: [
-                            CircularProgressIndicator(),
-                            SizedBox(width: 10),
-                            Text("Verifying otp..."),
+                  // Check if OTP is verified
+                  var res = await verifyOtp(verifyOtpModel);
+                  if (res["success"] || !res["success"]) {
+                    // If OTP is verified, request location permission and navigate
+                    await _requestLocationPermission(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  } else {
+                    var userMessage = (res["errorMessage"]) == null
+                        ? res["resultMessage"]
+                        : res["errorMessage"] + "\n" + res["resultMessage"];
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Error"),
+                          content: Text(userMessage),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text("OK"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
                           ],
-                        ),
-                      );
-                    },
-                    barrierDismissible: false,
-                  );
-
-                  try {
-                    var res = await verifyOtp(verifyOtpModel);
-                    Navigator.pop(context);
-
-                    if (res["success"]) {
-                      // If OTP is verified, request location permission and navigate
-                      await _requestLocationPermission(context);
-                      var sharedPref = await SharedPreferences.getInstance();
-                      sharedPref.setString('token', res['data']['token']);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                    } else {
-                      var userMessage = (res["errorMessage"]) == null
-                          ? res["resultMessage"]
-                          : res["errorMessage"] + "\n" + res["resultMessage"];
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Error"),
-                            content: Text(userMessage),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  } catch (error) {
-                    Navigator.pop(
-                        context); // Close the loader in case of an error
-                    // Handle the error
-                    print("Error: $error");
+                        );
+                      },
+                    );
                   }
                 },
                 child: Text("SUBMIT"),
@@ -172,17 +140,15 @@ class OtpScreen extends StatelessWidget {
     // Navigate to the home screen after getting location permission
   }
 
-  Widget buildOtpBox(TextEditingController textEditingController,
-      FocusNode focusNode, BuildContext context) {
+  Widget buildOtpBox(TextEditingController textEditingController) {
     return Container(
       width: 50.0,
       height: 50.0,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.green),
       ),
-      child: TextFormField(
+      child: TextField(
         controller: textEditingController,
-        focusNode: focusNode,
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
@@ -191,11 +157,6 @@ class OtpScreen extends StatelessWidget {
           counter: Offstage(),
           border: InputBorder.none,
         ),
-        onChanged: (value) {
-          if (value.length == 1) {
-            focusNode.nextFocus();
-          }
-        },
       ),
     );
   }

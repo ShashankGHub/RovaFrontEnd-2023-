@@ -3,27 +3,21 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:rova_23/models/Authmodel.dart';
 import 'package:rova_23/models/LoginModel.dart';
-import 'package:rova_23/models/ShopsModel.dart';
-
+import 'package:rova_23/utlis/constants/api_end_points.dart';
 import 'package:rova_23/utlis/helpers/app_exceptions.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/VerifyOtpModel.dart';
 
 class ApiBaseHelper {
-  //final String _baseUrl = "http://65.0.95.51/";
+  final String _baseUrl = "http://65.0.95.51/";
   final String _localUrl = "https://rova_solutions.acelucid.com/";
   //"https://localhost:7178/";
   final String signUpOtp = "api/Users/signUp";
   final String login = "api/Users/Login?phoneNumber=";
-  final String nearbyShopDetails =
-      "NearbyShopDetails/getShopDetailsByCity?City=";
 
   final String verifySignUpOtp = "api/Users/verifySignup";
   final String verifyLoginOtp = "api/Users/verifyLogin";
-  final String _baseUrl1 = "https://rova_solutions.acelucid.com/";
-  final String _baseUrl2 = "https://rova_model.acelucid.com/";
   static String phoneNumber = "";
   static bool isLogin = false;
 
@@ -37,7 +31,7 @@ class ApiBaseHelper {
 
     try {
       final response =
-          await http.get(Uri.parse(_baseUrl1 + url), headers: headers);
+          await http.get(Uri.parse(_baseUrl + url), headers: headers);
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException("connection_error");
@@ -53,7 +47,7 @@ class ApiBaseHelper {
     };
 
     try {
-      final response = await http.post(Uri.parse(_baseUrl1 + url),
+      final response = await http.post(Uri.parse(_baseUrl + url),
           body: jsonEncode(body), headers: headers);
       responseJson = _returnResponse(response);
     } on SocketException {
@@ -63,22 +57,16 @@ class ApiBaseHelper {
     return responseJson;
   }
 
-  Future<dynamic> uploadImageMediaPostRequest(
-      String filename, String url) async {
-    String urls = "";
-    if (url != null) {
-      urls = url;
-    }
+  Future<dynamic> uploadImageMediaPostRequest(String filename) async {
     var responseJson;
-    var sharedPref = await SharedPreferences.getInstance();
-    var token = sharedPref.getString('token');
     try {
       Map<String, String> headers = {
         "accept": "application/json",
         "content-Type": "multipart/form-data"
       };
 
-      var request = http.MultipartRequest('POST', Uri.parse(_baseUrl2 + urls));
+      var request = http.MultipartRequest(
+          'POST', Uri.parse(_baseUrl + ApiEndPoints.tomatoEndPoints));
       request.headers.addAll(headers);
       request.files.add(http.MultipartFile('file',
           File(filename).readAsBytes().asStream(), File(filename).lengthSync(),
@@ -121,7 +109,7 @@ class ApiBaseHelper {
       'Content-Type': 'application/json',
     };
     var request;
-    if (!ApiBaseHelper.isLogin) {
+    if (!isLogin) {
       request = http.Request('POST', Uri.parse(_localUrl + verifySignUpOtp));
     } else {
       request = http.Request('POST', Uri.parse(_localUrl + verifyLoginOtp));
@@ -138,18 +126,6 @@ class ApiBaseHelper {
     var headers = {'Content-Type': 'application/json'};
     var request = http.Request(
         'POST', Uri.parse(_localUrl + login + loginModel.phoneNumber));
-    request.headers.addAll(headers);
-    http.Response response =
-        await http.Response.fromStream(await request.send());
-    var res = jsonDecode(response.body);
-    return res;
-  }
-
-  Future<dynamic> getShopDetails(ShopsModel shopsModel) async {
-    String city = shopsModel.city ?? "";
-    var headers = {'Content-Type': 'application/json'};
-    var request =
-        http.Request('GET', Uri.parse(_localUrl + nearbyShopDetails + city));
     request.headers.addAll(headers);
     http.Response response =
         await http.Response.fromStream(await request.send());
